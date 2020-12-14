@@ -1,0 +1,20 @@
+body{
+    outline: none;
+    background-color: #f5fcff;
+}
+
+*:focus {outline:none !important}
+
+.content {
+    max-width: 900px;
+    margin: auto;
+  }
+
+#map{ 
+    width: 900px; 
+    height: 400px; 
+}
+
+.title{
+    font-family: 'Secular One', sans-serif;
+}
