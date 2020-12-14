@@ -10,6 +10,7 @@ var map = new mapboxgl.Map({
 
 var isLoading = d3.select("div#is_loading")
 var showTitle = d3.selectAll("div#titles")
+var showError = d3.selectAll("div#error")
 
 var margin = { top: 40, right: 100, bottom: 60, left: 70 }
     , width = 750
@@ -35,15 +36,15 @@ const svg3 = d3.select("div#container3").append("svg")
 
 
 let selected_operator = document.getElementById("operator").value
-const transitland_url = get_operator(selected_operator)
-get_data(transitland_url)
+get_operator(selected_operator).then(url => get_data(url))
+
 
 d3.select("select#operator").on("change", function () {
     isLoading.classed("loading loading--s", !isLoading.classed("loading loading--s"));
     var selectedoperator = d3.select(this).property('value')
     console.log(selectedoperator)
-    const url = get_operator(selectedoperator)
-    get_data(url)
+
+    get_operator(selectedoperator).then(url => get_data(url))
 })
 
 
@@ -51,6 +52,7 @@ function get_data(url){
     d3.json(url).then(data => {
 
         isLoading.classed("loading loading--s", !isLoading.classed("loading loading--s"));
+        showError.classed("none",true)
         
         let routes = data.routes.map(x => {
             let a = {
@@ -65,6 +67,7 @@ function get_data(url){
         let routes2 = routes.filter(x=>x.route_stop_patterns.length>0)
 
         d3.select("select#routes").html("")
+        d3.select("select#patterns").html("")
         
         d3.select("select#routes").selectAll("option")
         .data(routes2)
@@ -82,18 +85,17 @@ function get_data(url){
         .append("option")
         .attr("value", (d) => d)
         .text((d) => d)
-    
+        
         get_drive_cycle(patterns2[0])
         isLoading.classed("loading loading--s", !isLoading.classed("loading loading--s"));
+        showError.classed("none",true)
         
         d3.select("select#routes").on("change", function () {
+            showError.classed("none",true)
             var selectedroute = d3.select(this).property('value')
     
             let patterns = routes2.filter(x => x.onestop_id === selectedroute)[0].route_stop_patterns
     
-            get_drive_cycle(patterns[0])
-            isLoading.classed("loading loading--s", !isLoading.classed("loading loading--s"));
-        
             d3.select("select#patterns").html("")
     
             d3.select("select#patterns").selectAll("option")
@@ -102,11 +104,16 @@ function get_data(url){
             .append("option")
             .attr("value", (d) => d)
             .text((d) => d)
+
+
+            get_drive_cycle(patterns[0])
+            isLoading.classed("loading loading--s", !isLoading.classed("loading loading--s"));
     
         })
     
         d3.select("select#patterns").on("change", function () {
             isLoading.classed("loading loading--s", !isLoading.classed("loading loading--s"));
+            showError.classed("none",true)
             var selectedpattern = d3.select(this).property('value')
             get_drive_cycle(selectedpattern)
     
@@ -130,7 +137,7 @@ function get_drive_cycle(pattern) {
 
     const drivecycle_url = decodeURIComponent(url.href)
     const transitland_route_url = decodeURIComponent(transitland.href)
-    
+
     Promise.all([
         d3.json(drivecycle_url),
         d3.json(transitland_route_url)
@@ -139,37 +146,48 @@ function get_drive_cycle(pattern) {
         isLoading.classed("loading loading--s", !isLoading.classed("loading loading--s"));
         showTitle.classed("none", false);
 
-        if (map.getLayer("route")) {
-                map.removeLayer("route");
-            }
-            if (map.getSource("route")) {
-                map.removeSource("route");
+        if (drivecycle.data==0){
+            showError.classed("none",false)
+            return
         }
 
-        map.addSource('route', {
-            'type': 'geojson',
-            'data': route
-        });
-        map.addLayer({
-            'id': 'route',
-            'type': 'line',
-            'source': 'route',
-            'layout': {
-                'line-join': 'round',
-                'line-cap': 'round'
-            },
-            'paint': {
-                'line-color': '#ff8987',
-                'line-width': 3
-            }
-        });
+        if (map.getSource("route")) {
+            map.getSource('route').setData(route);
+            
+        }else{
+            map.addSource('route', {
+                'type': 'geojson',
+                'data': route
+            });
+            map.addLayer({
+                'id': 'route',
+                'type': 'line',
+                'source': 'route',
+                'layout': {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                'paint': {
+                    'line-color': '#ff8987',
+                    'line-width': 3
+                }
+            });
+        }
 
-        map.on('sourcedata', function (e) {
-            if (e.sourceId !== 'route' || !e.isSourceLoaded) return
-            var f = map.querySourceFeatures('route')
-            if (f.length === 0) return
-            var bbox = turf.bbox(route);
-            map.fitBounds(bbox, {padding: 30});    
+    
+        map.on('data', function (e) {
+
+            if (map.isSourceLoaded('route')) {
+                var bbox = turf.bbox(route);
+                console.log("zoom")
+                map.fitBounds(bbox, {padding: 30});
+            }
+
+            // if (e.sourceId !== 'route' || !e.isSourceLoaded) return
+            // var f = map.querySourceFeatures('route')
+            // if (f.length === 0) return
+            // var bbox = turf.bbox(route);
+            // map.fitBounds(bbox, {padding: 30});    
         })
         
         svg.selectAll("*").remove();
@@ -314,13 +332,18 @@ function get_drive_cycle(pattern) {
 }
 
 function get_operator(operator){
-    const params = {
-        include_geometry: false,
-        per_page:1000,
-        operated_by:operator
-    }
-    const url = new URL('/api/v1/routes',transitland_endpoint)
-    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
-    
-    return decodeURIComponent(url.href)
+
+    return new Promise(function(resolve, reject) {
+        const params = {
+            include_geometry: false,
+            per_page:1000,
+            operated_by:operator
+        }
+        const url = new URL('/api/v1/routes',transitland_endpoint)
+        Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
+        
+        resolve(decodeURIComponent(url.href))
+
+    })
+
 }
