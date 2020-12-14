@@ -153,6 +153,9 @@ function get_drive_cycle(pattern) {
 
         if (map.getSource("route")) {
             map.getSource('route').setData(route);
+            var bbox = turf.bbox(route);
+            console.log("zoom")
+            map.fitBounds(bbox, {padding: 30});
             
         }else{
             map.addSource('route', {
@@ -172,15 +175,16 @@ function get_drive_cycle(pattern) {
                     'line-width': 3
                 }
             });
+            var bbox = turf.bbox(route);
+            console.log("zoom")
+            map.fitBounds(bbox, {padding: 30});
         }
 
     
         map.on('data', function (e) {
 
             if (map.isSourceLoaded('route')) {
-                var bbox = turf.bbox(route);
-                console.log("zoom")
-                map.fitBounds(bbox, {padding: 30});
+               
             }
 
             // if (e.sourceId !== 'route' || !e.isSourceLoaded) return
