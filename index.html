@@ -10,20 +10,6 @@
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.0.0/mapbox-gl.js"></script>
     <link rel="preconnect" href="https://fonts.gstatic.com"> 
     <link href="https://fonts.googleapis.com/css2?family=Secular+One&display=swap" rel="stylesheet">
-    <!--[if gte mso 9]><xml>
-<mso:CustomDocumentProperties>
-<mso:display_urn_x003a_schemas-microsoft-com_x003a_office_x003a_office_x0023_Editor msdt:dt="string">Hull, Matthew D</mso:display_urn_x003a_schemas-microsoft-com_x003a_office_x003a_office_x0023_Editor>
-<mso:xd_Signature msdt:dt="string"></mso:xd_Signature>
-<mso:Order msdt:dt="string">35500.0000000000</mso:Order>
-<mso:ComplianceAssetId msdt:dt="string"></mso:ComplianceAssetId>
-<mso:TemplateUrl msdt:dt="string"></mso:TemplateUrl>
-<mso:xd_ProgID msdt:dt="string"></mso:xd_ProgID>
-<mso:display_urn_x003a_schemas-microsoft-com_x003a_office_x003a_office_x0023_Author msdt:dt="string">Hull, Matthew D</mso:display_urn_x003a_schemas-microsoft-com_x003a_office_x003a_office_x0023_Author>
-<mso:ContentTypeId msdt:dt="string">0x010100D48F87729E805A4096AD64C4E51DACBE</mso:ContentTypeId>
-<mso:_SourceUrl msdt:dt="string"></mso:_SourceUrl>
-<mso:_SharedFileIndex msdt:dt="string"></mso:_SharedFileIndex>
-</mso:CustomDocumentProperties>
-</xml><![endif]-->
     <title>Transit Drive Cycle Simulation</title>
 </head>
 
@@ -33,8 +19,11 @@
 
 
         <div class="mt24">
+            <span class="txt-s txt-bold">Saadiq Mohiuddin <a>www.saadiqm.com</a></span><br/>
             <h2 class="title">Transit Drive Cycle Simulation</h1>
-            <span class='txt-h4'>A tool for simulating drive cycles for bus routes using Transitland Feed Registry <br/> and Valhalla OSM routing engine.</span>
+            <span class='txt-h4'>A tool for simulating drive cycles for bus routes using data from <a>Transitland Feed Registry</a> <br/> and <a>Valhalla OSM routing engine</a>.
+            The profiles are generated with a trajectory planning <br/> algorithm using bus stop and intersection locations. Drive cycles are useful in determining power consumption in Electric Buses.</span> 
+            
             
         </div>
 
@@ -50,6 +39,9 @@
                 <select class='select w240 block select--border-grey' name="operator" id="operator">
                     <option value="o-c3nf-calgarytransit">Calgary</option>
                     <option value="o-c3x-edmontontransitsystem">Edmonton</option>
+                    <option value="o-c28-translink">Vancouver</option>
+                    <option value="o-dpz8-ttc">Toronto</option>
+                    <option value="o-f25d-socitdetransportdemontral">Montreal</option>
                     
                 </select>
                 <div class='select-arrow'></div>

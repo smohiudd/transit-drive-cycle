@@ -323,14 +323,14 @@ function get_drive_cycle(pattern) {
             .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
             .attr("transform", "translate(" + (width / 2) + "," + (height + 40) + ")")  // centre below axis
             .text("Distance (m)")
-            .style("font", "12px sans-serif")
+            .style("font", "14px sans-serif")
 
         // Add the text label for Y Axis
         svg3.append("text")
             .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
             .attr("transform", "translate(" + (0 - 50) + "," + (height / 2) + ")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
             .text("Speed (m/s)")
-            .style("font", "12px sans-serif")
+            .style("font", "14px sans-serif")
     })
 
 }
@@ -341,7 +341,8 @@ function get_operator(operator){
         const params = {
             include_geometry: false,
             per_page:1000,
-            operated_by:operator
+            operated_by:operator,
+            vehicle_type:"bus"
         }
         const url = new URL('/api/v1/routes',transitland_endpoint)
         Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
