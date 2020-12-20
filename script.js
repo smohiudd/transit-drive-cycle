@@ -34,6 +34,12 @@ const svg3 = d3.select("div#container3").append("svg")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+const svg4 = d3.select("div#container4").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
 
 let selected_operator = document.getElementById("operator").value
 get_operator(selected_operator).then(url => get_data(url))
@@ -123,6 +129,8 @@ function get_data(url){
 
 function get_drive_cycle(pattern) {
 
+    // const drivecycle_endpoint = 'http://localhost:3000/'
+
     const drivecycle_endpoint = 'https://b9d8625q6c.execute-api.us-east-1.amazonaws.com/'
 
     const params = {
@@ -197,6 +205,7 @@ function get_drive_cycle(pattern) {
         svg.selectAll("*").remove();
         svg2.selectAll("*").remove();
         svg3.selectAll("*").remove();
+        svg4.selectAll("*").remove();
 
         const xScale = d3.scaleLinear().range([0, width]);
         const yScale = d3.scaleLinear().range([height, 0]);
@@ -244,6 +253,7 @@ function get_drive_cycle(pattern) {
             .style("font", "12px sans-serif")
 
 
+        // SVG 2
         const yScale2 = d3.scaleLinear().range([height, 0]);
         yScale2.domain(d3.extent(drivecycle.data, d => d[2]));
 
@@ -286,7 +296,7 @@ function get_drive_cycle(pattern) {
             .text("Distance (m)")
             .style("font", "12px sans-serif")
 
-
+        //SVG 3
         const xScale3 = d3.scaleLinear().range([0, width]);
         const yScale3 = d3.scaleLinear().range([height, 0]);
 
@@ -330,6 +340,53 @@ function get_drive_cycle(pattern) {
             .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
             .attr("transform", "translate(" + (0 - 50) + "," + (height / 2) + ")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
             .text("Speed (m/s)")
+            .style("font", "14px sans-serif")
+
+        
+        //SVG 4
+        const xScale4 = d3.scaleLinear().range([0, width]);
+        const yScale4 = d3.scaleLinear().range([height, 0]);
+
+        xScale4.domain(d3.extent(drivecycle.elv, d => d[0]));
+        yScale4.domain(d3.extent(drivecycle.elv, d => d[1]));
+
+        const yaxis4 = d3.axisLeft()
+            .scale(yScale4);
+
+        const xaxis4 = d3.axisBottom()
+            .scale(xScale4)
+
+        svg4.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xaxis4);
+
+        svg4.append("g")
+            .attr("class", "axis")
+            .call(yaxis4);
+
+        svg4.append("path")
+        .datum(drivecycle.elv)
+        .attr("fill", "none")
+        .attr("stroke", "#4096ff")
+        .attr("stroke-width", 1.5)
+        .attr("d", d3.line()
+            .x(function(d) { return xScale4(d[0]) })
+            .y(function(d) { return yScale4(d[1]) })
+            )
+
+            // Add the text label for X Axis
+        svg4.append("text")
+            .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
+            .attr("transform", "translate(" + (width / 2) + "," + (height + 40) + ")")  // centre below axis
+            .text("Distance (m)")
+            .style("font", "14px sans-serif")
+
+        // Add the text label for Y Axis
+        svg4.append("text")
+            .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
+            .attr("transform", "translate(" + (0 - 50) + "," + (height / 2) + ")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
+            .text("Elevation (m)")
             .style("font", "14px sans-serif")
     })
 
