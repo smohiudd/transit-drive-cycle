@@ -1,3 +1,26 @@
+function responsivefy(svg) {
+    const container = d3.select(svg.node().parentNode),
+        width = parseInt(svg.style('width'), 10),
+        height = parseInt(svg.style('height'), 10),
+        aspect = width / height;
+   
+    svg.attr('viewBox', `0 0 ${width} ${height}`)
+        .attr('preserveAspectRatio', 'xMinYMid')
+        .call(resize);
+   
+    d3.select(window).on(
+        'resize.' + container.attr('id'), 
+        resize
+    );
+   
+    function resize() {
+        const w = parseInt(container.style('width'));
+        svg.attr('width', w);
+        svg.attr('height', Math.round(w / aspect));
+    }
+}
+
+
 mapboxgl.accessToken = 'pk.eyJ1Ijoic2FhZGlxbSIsImEiOiJjamJpMXcxa3AyMG9zMzNyNmdxNDlneGRvIn0.wjlI8r1S_-xxtq2d-W5qPA';
 const transitland_endpoint = 'http://transit.land/'
 
@@ -19,24 +42,28 @@ var margin = { top: 40, right: 100, bottom: 60, left: 70 }
 const svg = d3.select("div#container1").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
+    .call(responsivefy)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 const svg2 = d3.select("div#container2").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
+    .call(responsivefy)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 const svg3 = d3.select("div#container3").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
+    .call(responsivefy)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 const svg4 = d3.select("div#container4").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
+    .call(responsivefy)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
