@@ -22,7 +22,8 @@ function responsivefy(svg) {
 
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoic2FhZGlxbSIsImEiOiJjamJpMXcxa3AyMG9zMzNyNmdxNDlneGRvIn0.wjlI8r1S_-xxtq2d-W5qPA';
-const transitland_endpoint = 'http://transit.land/'
+const transitland_endpoint = 'https://b9d8625q6c.execute-api.us-east-1.amazonaws.com'
+// const transitland_endpoint = 'http://localhost:3000/'
 
 var map = new mapboxgl.Map({
     container: 'map', // container id
@@ -69,7 +70,11 @@ const svg4 = d3.select("div#container4").append("svg")
 
 
 let selected_operator = document.getElementById("operator").value
-get_operator(selected_operator).then(url => get_data(url))
+get_operator(selected_operator).then(url => get_data(url)).catch(error => {
+    console.log("Could not list routes")
+    isLoading.classed("loading loading--s", !isLoading.classed("loading loading--s"));
+    showError.classed("none",false)
+  });
 
 
 d3.select("select#operator").on("change", function () {
@@ -77,7 +82,11 @@ d3.select("select#operator").on("change", function () {
     var selectedoperator = d3.select(this).property('value')
     console.log(selectedoperator)
 
-    get_operator(selectedoperator).then(url => get_data(url))
+    get_operator(selectedoperator).then(url => get_data(url)).catch(error => {
+       console.log("Could not list routes")
+       isLoading.classed("loading loading--s", !isLoading.classed("loading loading--s"));
+       showError.classed("none",false)
+      });
 })
 
 
@@ -156,16 +165,12 @@ function get_data(url){
 
 function get_drive_cycle(pattern) {
 
-    // const drivecycle_endpoint = 'http://localhost:3000/'
-
-    const drivecycle_endpoint = 'https://b9d8625q6c.execute-api.us-east-1.amazonaws.com/'
-
     const params = {
         onestop_id:pattern
     }
 
-    const transitland = new URL('/api/v1/route_stop_patterns.geojson',transitland_endpoint)
-    const url = new URL('/dev/drivecycle',drivecycle_endpoint)
+    const transitland = new URL('/dev/stops',transitland_endpoint)
+    const url = new URL('/dev/drivecycle',transitland_endpoint)
 
     Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
     Object.keys(params).forEach(key => transitland.searchParams.append(key, params[key]))
@@ -181,10 +186,10 @@ function get_drive_cycle(pattern) {
         isLoading.classed("loading loading--s", !isLoading.classed("loading loading--s"));
         showTitle.classed("none", false);
 
-        if (drivecycle.data==0){
-            showError.classed("none",false)
-            return
-        }
+        // if (drivecycle.data==0){
+        //     showError.classed("none",false)
+        //     return
+        // }
 
         if (map.getSource("route")) {
             map.getSource('route').setData(route);
@@ -415,7 +420,11 @@ function get_drive_cycle(pattern) {
             .attr("transform", "translate(" + (0 - 50) + "," + (height / 2) + ")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
             .text("Elevation (m)")
             .style("font", "14px sans-serif")
-    })
+    }).catch(error => {
+        console.error("There was an error")
+        isLoading.classed("loading loading--s", !isLoading.classed("loading loading--s"));
+        showError.classed("none",false)
+      });
 
 }
 
@@ -423,14 +432,11 @@ function get_operator(operator){
 
     return new Promise(function(resolve, reject) {
         const params = {
-            include_geometry: false,
-            per_page:1000,
-            operated_by:operator,
-            vehicle_type:"bus"
+            operated_by:operator
         }
-        const url = new URL('/api/v1/routes',transitland_endpoint)
+        const url = new URL('/dev/routes',transitland_endpoint)
         Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
-        
+
         resolve(decodeURIComponent(url.href))
 
     })
